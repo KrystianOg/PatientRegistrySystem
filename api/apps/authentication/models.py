@@ -38,6 +38,10 @@ class User(AbstractBaseUser, PermissionsMixin):
     def username(self):
         return self.first_name + " " + self.last_name or self.email.split("@")[0]
 
+    @property
+    def type_detail(self):
+        return self.get_type_display()
+
 
 @receiver(post_save, sender=User)
 def create_auth_token(sender, instance=None, created=False, **kwargs):
