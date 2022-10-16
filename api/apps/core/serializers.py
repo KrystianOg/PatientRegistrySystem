@@ -72,3 +72,5 @@ class UserSerializer(serializers.ModelSerializer):
             'last_name'
         ]
         read_only_fields = ['pk']
+
+    # TODO: patients and doctors should be able to change ONLY their accounts
