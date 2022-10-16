@@ -36,7 +36,8 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     @property
     def username(self):
-        return self.first_name + " " + self.last_name or self.email.split("@")[0]
+        return self.first_name + " " + self.last_name if self.first_name and self.last_name \
+            else self.email.split("@")[0]
 
     @property
     def type_detail(self):

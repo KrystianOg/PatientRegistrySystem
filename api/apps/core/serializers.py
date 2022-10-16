@@ -16,7 +16,6 @@ class AppointmentSerializer(serializers.ModelSerializer):
             'comment'
         ]
 
-
     def validate_doctor(self, value):
         if not value.type == User.UserType.DOCTOR:
             raise serializers.ValidationError(f'{value} is not a doctor.')

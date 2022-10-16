@@ -22,6 +22,9 @@ class Appointment(models.Model):
         db_table = "appointments"
         ordering = ["-date"]
 
+    def __str__(self):
+        return f'{self.doctor} {self.patient} {self.date} {self.duration}'
+
 
 class Request(models.Model):
     """Model definition for Request."""
@@ -32,6 +35,9 @@ class Request(models.Model):
 
     class Meta:
         db_table = "requests"
+
+    def __str__(self):
+        return f'{self.patient} {self.symptoms}'
 
 
 # possible TODO: add a model for prescriptions if too few models
