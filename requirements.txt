@@ -7,5 +7,8 @@ python-dotenv>=0.20.0 # python-dotenv reads key-value pairs from a .env file and
 djangorestframework-simplejwt==5.2.1 # JSON Web Token authentication for Django REST Framework
 django-cryptography>=1.1.0 # django-cryptography is a Django app that provides a set of fields for storing encrypted data in your models.
 Pillow  # Pillow is the friendly PIL fork by Alex Clark and Contributors. PIL is the Python Imaging Library by Fredrik Lundh and Contributors.
-
 # django-filter TODO: add that to the project
+requests~=2.28.1
+
+google~=3.0.0
+google-api-python-client>=2.64.0

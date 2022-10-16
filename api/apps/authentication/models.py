@@ -1,6 +1,8 @@
 from django.contrib.auth.base_user import AbstractBaseUser
 from django.contrib.auth.models import PermissionsMixin
 from django.db import models
+from rest_framework_simplejwt.tokens import RefreshToken
+
 from .managers import UserManager
 from django.db.models.signals import post_save
 from django.dispatch import receiver
@@ -34,13 +36,20 @@ class User(AbstractBaseUser, PermissionsMixin):
     def __str__(self):
         return self.email
 
-    @property
-    def username(self):
-        return self.first_name + " " + self.last_name or self.email.split("@")[0]
+    def get_username(self):
+        return self.email.split("@")[0]
 
     @property
     def type_detail(self):
         return self.get_type_display()
+
+    def get_token(self):
+        refresh = RefreshToken.for_user(self)
+
+        return {
+            "refresh": str(refresh),
+            "access": str(refresh.access_token),
+        }
 
 
 @receiver(post_save, sender=User)
