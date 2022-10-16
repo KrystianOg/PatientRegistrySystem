@@ -15,11 +15,35 @@ class AppointmentSerializer(serializers.ModelSerializer):
             'patient_appeared',
             'comment'
         ]
+        read_only_fields = ['pk']
 
     def validate_doctor(self, value):
         if not value.type == User.UserType.DOCTOR:
             raise serializers.ValidationError(f'{value} is not a doctor.')
         return value
+
+
+class AppointmentPatientSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Appointment
+        fields = [
+            'pk',
+            'doctor',
+            'patient',
+            'date',
+            'duration',
+            'patient_appeared',
+            'comment'
+        ]
+        read_only_fields = [
+            'pk',
+            'doctor',
+            'patient',
+            'date',
+            'duration',
+            'patient_appeared',
+            'comment'
+        ]
 
 
 class RequestSerializer(serializers.ModelSerializer):
@@ -32,6 +56,7 @@ class RequestSerializer(serializers.ModelSerializer):
             'symptoms',
             'comment'
         ]
+        read_only_fields = ['pk']
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -46,3 +71,4 @@ class UserSerializer(serializers.ModelSerializer):
             'first_name',
             'last_name'
         ]
+        read_only_fields = ['pk']
