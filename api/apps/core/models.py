@@ -27,7 +27,7 @@ class Request(models.Model):
     """Model definition for Request."""
 
     patient = models.ForeignKey(User, on_delete=models.CASCADE, related_name="request_patient")
-    symptoms = ArrayField(models.CharField(max_length=255))
+    symptoms = ArrayField(models.CharField(max_length=255), blank=True, null=True)
     comment = models.TextField(blank=True, null=True)
 
     class Meta:
