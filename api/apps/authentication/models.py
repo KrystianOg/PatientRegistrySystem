@@ -43,6 +43,10 @@ class User(AbstractBaseUser, PermissionsMixin):
     def type_detail(self):
         return self.get_type_display()
 
+    @property
+    def type_detail(self):
+        return self.get_type_display()
+
 
 @receiver(post_save, sender=User)
 def create_auth_token(sender, instance=None, created=False, **kwargs):

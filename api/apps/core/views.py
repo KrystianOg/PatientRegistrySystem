@@ -89,4 +89,3 @@ class UserViewSet(viewsets.ModelViewSet):
         else:
             queryset = User.objects.all()
         return queryset
-
