@@ -51,6 +51,8 @@ INSTALLED_APPS = [
     # APPS
     "api.apps.authentication",
     "api.apps.core",
+    # PERMISSIONS
+    'guardian',
     # AUTH
     "rest_framework.authtoken",
     "rest_framework_simplejwt",
@@ -138,6 +140,10 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend',
+    'guardian.backends.ObjectPermissionBackend',
+)
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.1/topics/i18n/
