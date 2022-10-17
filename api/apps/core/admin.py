@@ -1,6 +1,13 @@
 from django.contrib import admin
-
 from .models import Appointment, Request
+from guardian.admin import GuardedModelAdmin
 
-admin.site.register(Appointment)
-admin.site.register(Request)
+
+@admin.register(Appointment)
+class AppointmentAdmin(GuardedModelAdmin):
+    pass
+
+
+@admin.register(Request)
+class RequestAdmin(GuardedModelAdmin):
+    pass
