@@ -86,5 +86,5 @@ class GoogleSignInView(RetrieveModelMixin, GenericViewSet):
                 )
                 user.save()
                 return Response(user.get_token(), status=status.HTTP_201_CREATED)
-        except ValueError as e:
+        except ValueError:
             return Response({'error': 'Invalid Google token'}, status=status.HTTP_403_FORBIDDEN)
