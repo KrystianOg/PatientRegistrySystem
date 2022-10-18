@@ -1,7 +1,4 @@
-from rest_framework.mixins import (
-    CreateModelMixin,
-    UpdateModelMixin, RetrieveModelMixin
-)
+from rest_framework.mixins import CreateModelMixin, UpdateModelMixin, RetrieveModelMixin
 from rest_framework.viewsets import GenericViewSet
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
@@ -62,29 +59,24 @@ class ChangePasswordViewSet(UpdateModelMixin, GenericViewSet):
 
 class GoogleSignInView(RetrieveModelMixin, GenericViewSet):
     def retrieve(self, request, *args, **kwargs):
-        token = request.headers.get('Authorization')
+        token = request.headers.get("Authorization")
 
         try:
             idinfo = id_token.verify_oauth2_token(
-                token,
-                requests.Request(),
-                settings.GOOGLE_CLIENT_ID,
-                clock_skew_in_seconds=4
+                token, requests.Request(), settings.GOOGLE_CLIENT_ID, clock_skew_in_seconds=4
             )
-            email = idinfo['email']
-            given_name = idinfo['given_name']
-            family_name = idinfo['family_name']
+            email = idinfo["email"]
+            given_name = idinfo["given_name"]
+            family_name = idinfo["family_name"]
 
             if User.objects.filter(email=email).exists():
                 token = User.objects.get(email=email).get_token()
                 return Response(token, status=status.HTTP_200_OK)
             else:
                 user = User.objects.create_user(
-                    email=email,
-                    first_name=given_name,
-                    last_name=family_name
+                    email=email, first_name=given_name, last_name=family_name
                 )
                 user.save()
                 return Response(user.get_token(), status=status.HTTP_201_CREATED)
         except ValueError:
-            return Response({'error': 'Invalid Google token'}, status=status.HTTP_403_FORBIDDEN)
+            return Response({"error": "Invalid Google token"}, status=status.HTTP_403_FORBIDDEN)
