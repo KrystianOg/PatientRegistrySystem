@@ -1,5 +1,0 @@
-- name: Black Check
-  uses: jpetrucciani/black-check@22.10.0
-  with:
-    path: 'api'
-    black_flags: '--config pyproject.toml'
