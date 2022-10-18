@@ -1,0 +1,4 @@
+- name: Flake8 action
+  uses: suo/flake8-github-action@v1
+  with:
+    args: --config=setup.cfg
