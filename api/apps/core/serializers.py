@@ -34,7 +34,7 @@ class RequestSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ["pk", "type", "type_detail", "email", "first_name", "last_name"]
+        fields = ["pk", "email", "first_name", "last_name"]
         read_only_fields = ["pk"]
 
     # TODO: patients and doctors should be able to change ONLY their accounts

@@ -12,7 +12,6 @@ class UserManager(BaseUserManager):
         )
         print(email, password)
         user.set_password(password)
-        print(user.password)
         user.save(using=self._db)
         user.groups.add(Group.objects.get(name="Patient"))
         user.user_permissions.add(Permission.objects.get(codename="add_request"))
