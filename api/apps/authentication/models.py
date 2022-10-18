@@ -10,20 +10,12 @@ from rest_framework.authtoken.models import Token
 
 
 class User(AbstractBaseUser, PermissionsMixin):
-    class UserType(models.IntegerChoices):
-        ADMIN = (1, "Admin")
-        MODERATOR = (2, "Moderator")
-        DOCTOR = (3, "Doctor")
-        PATIENT = (4, "Patient")
-
     # base fields
     is_verified = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    type = models.IntegerField(choices=UserType.choices, default=UserType.PATIENT)
-
     # personal information
     email = models.EmailField(max_length=320, unique=True)
     first_name = models.CharField(max_length=63, blank=True, null=True)
@@ -37,11 +29,11 @@ class User(AbstractBaseUser, PermissionsMixin):
         return self.email
 
     def get_username(self):
-        return self.email.split("@")[0]
-
-    @property
-    def type_detail(self):
-        return self.get_type_display()
+        return (
+            self.first_name + " " + self.last_name
+            if self.first_name and self.last_name
+            else self.email.split("@")[0]
+        )
 
     def get_token(self):
         refresh = RefreshToken.for_user(self)
@@ -52,6 +44,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         }
 
 
+# Create auth token post User save
 @receiver(post_save, sender=User)
 def create_auth_token(sender, instance=None, created=False, **kwargs):
     if created:

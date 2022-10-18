@@ -1,11 +1,15 @@
 from django.urls import path, include
 from rest_framework_simplejwt.views import TokenRefreshView
-from .views import MyTokenObtainPairView, SignUpViewset, ChangePasswordViewSet, GoogleSignInView
+from .views import MyTokenObtainPairView, ChangePasswordViewSet, GoogleSignInView, \
+    SignUpDoctorViewset, SignUpPatientViewset
 
 auth_urlpatterns = [
     path("token/", MyTokenObtainPairView.as_view(), name="token_obtain_pair"),  # to sign in
     path("token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
-    path("signup/", SignUpViewset.as_view({"post": "create"}), name="signup"),  # to sign up
+    path("signup/", SignUpPatientViewset.as_view({"post": "create"}), name="signup"),  # to sign up
+    path(
+        "signup/doctor/", SignUpDoctorViewset.as_view({"post": "create"}), name="signup-doctor"
+    ),  # to sign up
     path(
         "change-password/",
         ChangePasswordViewSet.as_view({"patch": "update"}),

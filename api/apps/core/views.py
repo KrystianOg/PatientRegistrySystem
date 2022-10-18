@@ -1,7 +1,13 @@
 from rest_framework import viewsets
-from .serializers import AppointmentSerializer, RequestSerializer, UserSerializer
-from .models import Appointment, Request, User
 
+
+from .serializers import (
+    AppointmentSerializer,
+    RequestSerializer,
+    UserSerializer,
+)
+from .models import Appointment, Request, User
+from .mixins import ObjectPermissionMixin
 
 """
 CHEAT SHEET
@@ -14,16 +20,24 @@ delete -> destroy
 """
 
 
-class AppointmentViewSet(viewsets.ModelViewSet):
-    queryset = Appointment.objects.all()
+class AppointmentViewSet(ObjectPermissionMixin, viewsets.ModelViewSet):
     serializer_class = AppointmentSerializer
+    queryset = Appointment.objects.all()
+
+    def get_serializer_context(self):
+        self.request.data["doctor"] = self.request.user.pk
 
 
-class RequestViewSet(viewsets.ModelViewSet):
-    queryset = Request.objects.all()
+class RequestViewSet(ObjectPermissionMixin, viewsets.ModelViewSet):
     serializer_class = RequestSerializer
+    queryset = Request.objects.all()
+
+    def get_serializer_context(self):
+        self.request.data["patient"] = self.request.user.pk
+        pass
 
 
+# maybe without CreateModelMixin but for sure? (need to create user during signup process)
 class UserViewSet(viewsets.ModelViewSet):
-    queryset = User.objects.all()
     serializer_class = UserSerializer
+    queryset = User.objects.all()

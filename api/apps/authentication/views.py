@@ -10,8 +10,13 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 
 from api import settings
 from api.apps.authentication.models import User
-from api.apps.authentication.serializers import MyTokenObtainPairSerializer, RegisterUserSerializer, \
-    ChangePasswordSerializer
+
+from api.apps.authentication.serializers import (
+    MyTokenObtainPairSerializer,
+    RegisterPatientSerializer,
+    ChangePasswordSerializer,
+    RegisterDoctorSerializer,
+)
 
 from google.oauth2 import id_token
 from google.auth.transport import requests
@@ -20,17 +25,23 @@ from google.auth.transport import requests
 # for jwt tokens
 class MyTokenObtainPairView(TokenObtainPairView):
     serializer_class = MyTokenObtainPairSerializer
+    permission_classes = [AllowAny]
 
 
 # TODO: remove response data when 201
-class SignUpViewset(CreateModelMixin, GenericViewSet):
-    serializer_class = RegisterUserSerializer
+class SignUpPatientViewset(CreateModelMixin, GenericViewSet):
+    serializer_class = RegisterPatientSerializer
     permission_classes = [AllowAny]
 
     def get_serializer_context(self):
         return {
             "password2": self.request.data.get("password2"),
         }
+
+
+class SignUpDoctorViewset(SignUpPatientViewset):
+    serializer_class = RegisterDoctorSerializer
+    permission_classes = [AllowAny]
 
 
 class ChangePasswordViewSet(UpdateModelMixin, GenericViewSet):
