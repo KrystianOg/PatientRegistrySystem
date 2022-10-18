@@ -9,3 +9,5 @@ django-cryptography>=1.1.0 # django-cryptography is a Django app that provides a
 Pillow  # Pillow is the friendly PIL fork by Alex Clark and Contributors. PIL is the Python Imaging Library by Fredrik Lundh and Contributors.
 
 # django-filter TODO: add that to the project
+
+django-guardian~=2.4.0

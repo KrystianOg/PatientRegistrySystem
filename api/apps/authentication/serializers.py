@@ -1,4 +1,3 @@
-from django.contrib.auth.hashers import make_password
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
@@ -14,13 +13,12 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):  # noqa
         token["email"] = user.email
         token["first_name"] = user.first_name
         token["last_name"] = user.last_name
-        token["type"] = user.type
         # ...
 
         return token
 
 
-class RegisterUserSerializer(serializers.ModelSerializer):
+class RegisterPatientSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ["email", "password"]
@@ -37,7 +35,17 @@ class RegisterUserSerializer(serializers.ModelSerializer):
         if password != password2:
             raise serializers.ValidationError("Passwords do not match")
 
-        return make_password(value)
+        return value
+
+    def create(self, validated_data):
+        patient = User.objects.create_user(**validated_data)
+        return patient
+
+
+class RegisterDoctorSerializer(RegisterPatientSerializer):
+    def create(self, validated_data):
+        doctor = User.objects.create_doctor(**validated_data)
+        return doctor
 
 
 class ChangePasswordSerializer(serializers.Serializer):  # noqa
