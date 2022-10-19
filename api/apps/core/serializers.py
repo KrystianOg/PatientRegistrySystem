@@ -43,10 +43,14 @@ class AppointmentSerializer(serializers.ModelSerializer):
 
         appointments_before_appointment = users_appointments & Q(date__lte=appointment_start)
 
-        earlier_appointment = Appointment.objects.\
-            filter(appointments_before_appointment).order_by("date").last()
-        if earlier_appointment and earlier_appointment.is_date_overlapping(appointment_start) \
-                and earlier_appointment.pk != pk:
+        earlier_appointment = (
+            Appointment.objects.filter(appointments_before_appointment).order_by("date").last()
+        )
+        if (
+            earlier_appointment
+            and earlier_appointment.is_date_overlapping(appointment_start)
+            and earlier_appointment.pk != pk
+        ):
             if earlier_appointment.doctor == attrs.get("doctor"):
                 raise serializers.ValidationError("Then you have another appointment in progress")
             raise serializers.ValidationError("Then patient have another appointment in progress")
