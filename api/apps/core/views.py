@@ -18,7 +18,7 @@ class AppointmentViewSet(ObjectPermissionMixin, viewsets.ModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
-        user_groups = set(user.groups.all().values_list('name', flat=True))
+        user_groups = set(user.groups.values_list("name", flat=True))
 
         if "Admin" in user_groups:
             queryset = Appointment.objects.all()
@@ -38,7 +38,7 @@ class RequestViewSet(ObjectPermissionMixin, viewsets.ModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
-        user_groups = set(user.groups.all().values_list('name', flat=True))
+        user_groups = set(user.groups.values_list("name", flat=True))
 
         if "Admin" in user_groups or "Doctor" in user_groups:
             queryset = Request.objects.all()
@@ -47,15 +47,19 @@ class RequestViewSet(ObjectPermissionMixin, viewsets.ModelViewSet):
         return queryset
 
 
-class UserViewSet(viewsets.GenericViewSet, mixins.ListModelMixin,
-                  mixins.RetrieveModelMixin, mixins.UpdateModelMixin,
-                  mixins.DestroyModelMixin):
+class UserViewSet(
+    viewsets.GenericViewSet,
+    mixins.ListModelMixin,
+    mixins.RetrieveModelMixin,
+    mixins.UpdateModelMixin,
+    mixins.DestroyModelMixin,
+):
     serializer_class = UserSerializer
     queryset = User.objects.all()
 
     def get_queryset(self):
         user = self.request.user
-        user_groups = set(user.groups.all().values_list('name', flat=True))
+        user_groups = set(user.groups.values_list("name", flat=True))
 
         if "Admin" in user_groups or "Doctor" in user_groups:
             queryset = User.objects.all()
