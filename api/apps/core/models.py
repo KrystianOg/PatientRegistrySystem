@@ -50,7 +50,7 @@ def create_appointment_permissions(sender, instance=None, created=False, **kwarg
         assign_perm("change_appointment", instance.doctor, instance)
         # patient should be notified when doctor deletes appointment
         assign_perm("delete_appointment", instance.doctor, instance)
-        # doctor should be notified when patient changes appointment
+        # doctor should be notified when patient deletes appointment
         assign_perm("delete_appointment", instance.patient, instance)
 
 

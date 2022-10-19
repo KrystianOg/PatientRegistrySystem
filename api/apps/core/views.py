@@ -7,6 +7,7 @@ from .serializers import (
 )
 from .models import Appointment, Request, User
 from .mixins import ObjectPermissionMixin
+from django.core.exceptions import PermissionDenied
 
 
 class AppointmentViewSet(ObjectPermissionMixin, viewsets.ModelViewSet):
@@ -28,6 +29,20 @@ class AppointmentViewSet(ObjectPermissionMixin, viewsets.ModelViewSet):
             queryset = Appointment.objects.filter(patient=user)
         return queryset
 
+    def destroy(self, request, *args, **kwargs):
+        doctor_pk = Appointment.objects.get(pk=int(kwargs["pk"])).doctor
+        patient_pk = Appointment.objects.get(pk=int(kwargs["pk"])).patient
+        if patient_pk != self.request.user.pk and doctor_pk != self.request.user.pk:
+            raise PermissionDenied
+        return super().destroy(request, args, kwargs)
+
+    def retrieve(self, request, *args, **kwargs):
+        patient_pk = Appointment.objects.get(pk=int(kwargs["pk"])).patient
+        doctor_pk = Appointment.objects.get(pk=int(kwargs["pk"])).doctor
+        if patient_pk != self.request.user.pk and doctor_pk != self.request.user.pk:
+            raise PermissionDenied
+        return super().retrieve(request, args, kwargs)
+
 
 class RequestViewSet(ObjectPermissionMixin, viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
@@ -45,6 +60,20 @@ class RequestViewSet(ObjectPermissionMixin, viewsets.ModelViewSet):
         else:
             queryset = Request.objects.filter(patient=user)
         return queryset
+
+    def destroy(self, request, *args, **kwargs):
+        patient_pk = Request.objects.get(pk=int(kwargs["pk"])).patient
+        if patient_pk != self.request.user.pk:
+            raise PermissionDenied
+        return super().destroy(request, args, kwargs)
+
+    def retrieve(self, request, *args, **kwargs):
+        user = self.request.user
+        user_groups = set(user.groups.values_list("name", flat=True))
+        patient_pk = Request.objects.get(pk=int(kwargs["pk"])).patient
+        if "Patient" in user_groups and patient_pk != self.request.user.pk:
+            raise PermissionDenied
+        return super().retrieve(request, args, kwargs)
 
 
 class UserViewSet(
@@ -66,3 +95,18 @@ class UserViewSet(
         else:
             queryset = User.objects.filter(email=user.email)
         return queryset
+
+    def update(self, request, *args, **kwargs):
+        if int(kwargs["pk"]) != int(self.request.user.pk):
+            raise PermissionDenied
+        return super().update(request, args, kwargs)
+
+    def destroy(self, request, *args, **kwargs):
+        if int(kwargs["pk"]) != int(self.request.user.pk):
+            raise PermissionDenied
+        return super().destroy(request, args, kwargs)
+
+    def retrieve(self, request, *args, **kwargs):
+        if int(kwargs["pk"]) != int(self.request.user.pk):
+            raise PermissionDenied
+        return super().retrieve(request, args, kwargs)
