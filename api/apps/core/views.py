@@ -18,7 +18,7 @@ class AppointmentViewSet(ObjectPermissionMixin, viewsets.ModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
-        user_groups = set(user.groups.values_list('name', flat=True))
+        user_groups = set(user.groups.values_list("name", flat=True))
 
 
         if "Admin" in user_groups:
@@ -39,7 +39,7 @@ class RequestViewSet(ObjectPermissionMixin, viewsets.ModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
-        user_groups = set(user.groups.values_list('name', flat=True))
+        user_groups = set(user.groups.values_list("name", flat=True))
 
         if "Admin" in user_groups or "Doctor" in user_groups:
             queryset = Request.objects.all()
@@ -60,7 +60,7 @@ class UserViewSet(
 
     def get_queryset(self):
         user = self.request.user
-        user_groups = set(user.groups.values_list('name', flat=True))
+        user_groups = set(user.groups.values_list("name", flat=True))
 
 
         if "Admin" in user_groups or "Doctor" in user_groups:
