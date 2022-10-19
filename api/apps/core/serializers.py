@@ -37,8 +37,12 @@ class AppointmentSerializer(serializers.ModelSerializer):
         if later_appointment:
             if not self.instance or self.instance and not later_appointment.pk == self.instance.pk:
                 if later_appointment.doctor == attrs.get("doctor"):
-                    raise serializers.ValidationError("You start another appointment before it ends")
-                raise serializers.ValidationError("Patient starts another appointment before it ends")
+                    raise serializers.ValidationError(
+                        "You start another appointment before it ends"
+                    )
+                raise serializers.ValidationError(
+                    "Patient starts another appointment before it ends"
+                )
 
         appointments_before_appointment = users_appointments & Q(date__lte=appointment_start)
 
@@ -46,11 +50,19 @@ class AppointmentSerializer(serializers.ModelSerializer):
             Appointment.objects.filter(appointments_before_appointment).order_by("date").last()
         )
         if earlier_appointment:
-            if not self.instance or self.instance and not earlier_appointment.pk == self.instance.pk:
+            if (
+                not self.instance
+                or self.instance
+                and not earlier_appointment.pk == self.instance.pk
+            ):
                 if earlier_appointment.is_date_overlapping(appointment_start):
                     if earlier_appointment.doctor == attrs.get("doctor"):
-                        raise serializers.ValidationError("Then you have another appointment in progress")
-                    raise serializers.ValidationError("Then patient have another appointment in progress")
+                        raise serializers.ValidationError(
+                            "Then you have another appointment in progress"
+                        )
+                    raise serializers.ValidationError(
+                        "Then patient have another appointment in progress"
+                    )
 
         return attrs
 
