@@ -26,7 +26,7 @@ class MyTokenObtainPairView(TokenObtainPairView):
 
 
 # TODO: remove response data when 201
-class SignUpPatientViewset(CreateModelMixin, GenericViewSet):
+class SignUpPatientViewSet(CreateModelMixin, GenericViewSet):
     serializer_class = RegisterPatientSerializer
     permission_classes = [AllowAny]
 
@@ -36,7 +36,7 @@ class SignUpPatientViewset(CreateModelMixin, GenericViewSet):
         }
 
 
-class SignUpDoctorViewset(SignUpPatientViewset):
+class SignUpDoctorViewSet(SignUpPatientViewSet):
     serializer_class = RegisterDoctorSerializer
     permission_classes = [AllowAny]
 

@@ -4,16 +4,16 @@ from .views import (
     MyTokenObtainPairView,
     ChangePasswordViewSet,
     GoogleSignInView,
-    SignUpDoctorViewset,
-    SignUpPatientViewset,
+    SignUpDoctorViewSet,
+    SignUpPatientViewSet,
 )
 
 auth_urlpatterns = [
     path("token/", MyTokenObtainPairView.as_view(), name="token_obtain_pair"),  # to sign in
     path("token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
-    path("signup/", SignUpPatientViewset.as_view({"post": "create"}), name="signup"),  # to sign up
+    path("signup/", SignUpPatientViewSet.as_view({"post": "create"}), name="signup"),  # to sign up
     path(
-        "signup/doctor/", SignUpDoctorViewset.as_view({"post": "create"}), name="signup-doctor"
+        "signup/doctor/", SignUpDoctorViewSet.as_view({"post": "create"}), name="signup-doctor"
     ),  # to sign up
     path(
         "change-password/",

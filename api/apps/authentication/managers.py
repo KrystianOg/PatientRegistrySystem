@@ -12,7 +12,13 @@ class UserManager(BaseUserManager):
         )
         user.set_password(password)
         user.save(using=self._db)
-        user.groups.add(Group.objects.get(name="Patient"))
+
+        try:
+            user.groups.add(Group.objects.get(name="Patient"))
+        except Group.DoesNotExist:
+            Group.objects.create(name="Patient")
+            user.groups.add(Group.objects.get(name="Patient"))
+
         user.user_permissions.add(Permission.objects.get(codename="add_request"))
 
         return user
