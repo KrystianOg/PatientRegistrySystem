@@ -29,10 +29,18 @@ class SignUpPatientViewSet(CreateModelMixin, GenericViewSet):
             "password2": self.request.data.get("password2"),
         }
 
+    def create(self, request, *args, **kwargs):
+        response = super().create(request, args, kwargs)
+        return Response({}, status=response.status_code, headers=response.headers)
+
 
 class SignUpDoctorViewSet(SignUpPatientViewSet):
     serializer_class = RegisterDoctorSerializer
     permission_classes = [AllowAny]
+
+    def create(self, request, *args, **kwargs):
+        response = super().create(request, args, kwargs)
+        return Response({}, status=response.status_code, headers=response.headers)
 
 
 class ChangePasswordViewSet(UpdateModelMixin, GenericViewSet):
