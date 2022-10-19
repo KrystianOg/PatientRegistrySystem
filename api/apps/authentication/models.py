@@ -1,6 +1,8 @@
 from django.contrib.auth.base_user import AbstractBaseUser
 from django.contrib.auth.models import PermissionsMixin
 from django.db import models
+from rest_framework_simplejwt.tokens import RefreshToken
+
 from .managers import UserManager
 from django.db.models.signals import post_save
 from django.dispatch import receiver
@@ -32,6 +34,14 @@ class User(AbstractBaseUser, PermissionsMixin):
             if self.first_name and self.last_name
             else self.email.split("@")[0]
         )
+
+    def get_token(self):
+        refresh = RefreshToken.for_user(self)
+
+        return {
+            "refresh": str(refresh),
+            "access": str(refresh.access_token),
+        }
 
 
 # Create auth token post User save

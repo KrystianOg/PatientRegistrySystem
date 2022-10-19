@@ -2,9 +2,10 @@ from django.urls import path, include
 from rest_framework_simplejwt.views import TokenRefreshView
 from .views import (
     MyTokenObtainPairView,
-    SignUpPatientViewSet,
-    SignUpDoctorViewSet,
     ChangePasswordViewSet,
+    GoogleSignInView,
+    SignUpDoctorViewSet,
+    SignUpPatientViewSet,
 )
 
 auth_urlpatterns = [
@@ -19,6 +20,7 @@ auth_urlpatterns = [
         ChangePasswordViewSet.as_view({"patch": "update"}),
         name="update_password",
     ),
+    path("google/signin/", GoogleSignInView.as_view({"get": "retrieve"}), name="google_signin"),
 ]
 
 urlpatterns = [
