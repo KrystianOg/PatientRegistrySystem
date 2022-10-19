@@ -76,4 +76,10 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ["pk", "email", "first_name", "last_name"]
         read_only_fields = ["pk"]
 
-    # TODO: patients and doctors should be able to change ONLY their accounts
+    def update(self, instance, validated_data):
+        request = self.context.get("request")
+        user_pk = request.user.pk
+        user_to_be_changed_pk = request.data.get("pk")
+        if user_pk != user_to_be_changed_pk:
+            raise serializers.ValidationError("Trying to change different account")
+        return super().update(instance, validated_data)
