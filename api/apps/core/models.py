@@ -34,6 +34,13 @@ class Appointment(models.Model):
             )
         ]
 
+    @property
+    def end_date(self):
+        return self.date + self.duration
+
+    def is_date_overlapping(self, date):
+        return self.date <= date <= self.end_date
+
     def __str__(self):
         return f"{self.doctor} {self.patient} {self.date} {self.duration}"
 

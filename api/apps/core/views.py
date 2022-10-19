@@ -12,6 +12,7 @@ from .mixins import ObjectPermissionMixin
 class AppointmentViewSet(ObjectPermissionMixin, viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     serializer_class = AppointmentSerializer
+    queryset = Appointment.objects.all()
 
     def get_serializer_context(self):
         self.request.data["doctor"] = self.request.user.pk
@@ -32,6 +33,7 @@ class AppointmentViewSet(ObjectPermissionMixin, viewsets.ModelViewSet):
 class RequestViewSet(ObjectPermissionMixin, viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     serializer_class = RequestSerializer
+    queryset = Request.objects.all()
 
     def get_serializer_context(self):
         self.request.data["patient"] = self.request.user.pk
