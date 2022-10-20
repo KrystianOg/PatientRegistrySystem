@@ -86,9 +86,6 @@ class UserSerializer(serializers.ModelSerializer):
         read_only_fields = ["pk"]
 
     def update(self, instance, validated_data):
-        request = self.context.get("request")
-        user_pk = request.user.pk
-        user_to_be_changed_pk = request.data.get("pk")
-        if user_pk != user_to_be_changed_pk:
+        if self.context.get("request").user.pk != instance.pk:
             raise serializers.ValidationError("Trying to change different account")
         return super().update(instance, validated_data)
