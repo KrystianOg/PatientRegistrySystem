@@ -16,9 +16,6 @@ class Appointment(models.Model):
 
     doctor = models.ForeignKey(User, on_delete=models.CASCADE, related_name="doctor")
     patient = models.ForeignKey(User, on_delete=models.CASCADE, related_name="appointment_patient")
-    # TODO: add custom validator
-    #  [ ] so doctor can not have two appointments at the same time
-    #  [ ] so patient can not have two appointments at the same time
     date = models.DateTimeField()
     duration = models.DurationField()  # may change to integer if easier
     patient_appeared = models.BooleanField(default=False)
@@ -33,6 +30,13 @@ class Appointment(models.Model):
                 name="duration_is_positive",
             )
         ]
+
+    @property
+    def end_date(self):
+        return self.date + self.duration
+
+    def is_date_overlapping(self, date):
+        return self.date <= date <= self.end_date
 
     def __str__(self):
         return f"{self.doctor} {self.patient} {self.date} {self.duration}"
