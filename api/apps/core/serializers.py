@@ -5,7 +5,16 @@ from .models import Appointment, Request, User
 class AppointmentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Appointment
-        fields = ["pk", "doctor", "patient", "date", "duration", "patient_appeared", "comment"]
+        fields = [
+            "pk",
+            "doctor",
+            "patient",
+            "date",
+            "duration",
+            "patient_appeared",
+            "symptoms",
+            "comment",
+        ]
         read_only_fields = ["pk"]
 
     def validate_doctor(self, doctor):
