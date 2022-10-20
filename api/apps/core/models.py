@@ -19,6 +19,7 @@ class Appointment(models.Model):
     date = models.DateTimeField()
     duration = models.DurationField()  # may change to integer if easier
     patient_appeared = models.BooleanField(default=False)
+    symptoms = ArrayField(models.CharField(max_length=255), blank=True, null=True)
     comment = models.TextField(blank=True, null=True)
 
     class Meta:

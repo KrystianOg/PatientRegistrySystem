@@ -1,5 +1,7 @@
-from rest_framework import viewsets, mixins
+from rest_framework import viewsets, mixins, status
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+
 from .serializers import (
     AppointmentSerializer,
     RequestSerializer,
@@ -28,6 +30,21 @@ class AppointmentViewSet(ObjectPermissionMixin, viewsets.ModelViewSet):
         else:
             queryset = Appointment.objects.filter(patient=user)
         return queryset
+
+    def create(self, request, *args, **kwargs):
+        request_pk = request.data.get("request")
+        request_obj = Request.objects.get(pk=request_pk)
+
+        request.data["patient"] = request_obj.patient.pk
+        request.data["symptoms"] = request_obj.symptoms
+        request.data["comment"] = request_obj.comment
+        request.data.pop("request")
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        request_obj.delete()
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
 
 class RequestViewSet(ObjectPermissionMixin, viewsets.ModelViewSet):
