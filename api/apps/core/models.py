@@ -18,6 +18,7 @@ class Appointment(models.Model):
     patient = models.ForeignKey(User, on_delete=models.CASCADE, related_name="appointment_patient")
     date = models.DateTimeField()
     duration = models.DurationField()  # may change to integer if easier
+    symptoms = ArrayField(models.CharField(max_length=64), size=None, blank=True, null=True)
     patient_appeared = models.BooleanField(default=False)
     comment = models.TextField(blank=True, null=True)
 
@@ -47,15 +48,13 @@ def create_appointment_permissions(sender, instance=None, created=False, **kwarg
     if created:
         # TODO: user notifications
         assign_perm("view_appointment", instance.doctor, instance)
-        assign_perm("view_appointment", instance.patient, instance)
-        # doctor should be notified when patient changes appointment
-        assign_perm("change_appointment", instance.patient, instance)
         # patient should be notified when doctor changes appointment
         assign_perm("change_appointment", instance.doctor, instance)
+        assign_perm("delete_appointment", instance.doctor, instance)
         # patient should be notified when doctor deletes appointment
         assign_perm("delete_appointment", instance.doctor, instance)
-        # doctor should be notified when patient changes appointment
-        assign_perm("delete_appointment", instance.patient, instance)
+
+        assign_perm("view_appointment", instance.patient, instance)
 
 
 class Request(models.Model):

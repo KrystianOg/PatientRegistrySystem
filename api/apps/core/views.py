@@ -4,9 +4,11 @@ from rest_framework_extensions.cache.decorators import cache_response
 from .serializers import (
     AppointmentSerializer,
     RequestSerializer,
-    UserSerializer,
 )
 from .models import Appointment, Request, User
+from ..authentication.serializers import UserSerializer
+
+
 # from .mixins import ObjectPermissionMixin
 
 

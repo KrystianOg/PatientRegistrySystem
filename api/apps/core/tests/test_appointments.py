@@ -1,9 +1,11 @@
+from datetime import datetime, timedelta
+import pytz
 from django.urls import reverse
 from rest_framework import status
 
 from api.apps.authentication.models import User
 from api.apps.authentication.tests.setup import TestsSetup
-from api.apps.core.models import Request
+from api.apps.core.models import Request, Appointment
 
 
 class TestCreateAppointments(TestsSetup):
@@ -17,66 +19,70 @@ class TestCreateAppointments(TestsSetup):
         self.appointment_data = {
             "request": self.request.id,
             "date": "2020-12-12T13:40",
-            "duration": 30,
+            "duration": 600,
             "patient": self.patient.id,
         }
 
     def test_patient_can_create_appointment_false(self):
         self.client.force_authenticate(user=self.patient)
         response = self.client.post(
-            reverse('appointments-list'),
+            reverse("appointments-list"),
             self.appointment_data,
-            format='json',
+            format="json",
         )
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_doctor_can_create_appointment_true(self):
         self.client.force_authenticate(user=self.doctor)
         response = self.client.post(
-            reverse('appointments-list'),
+            reverse("appointments-list"),
             self.appointment_data,
-            format='json',
+            format="json",
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(response.data['patient'], self.patient.id)
-        self.assertEqual(response.data['doctor'], self.doctor.id)
+        self.assertEqual(response.data["patient"], self.patient.id)
+        self.assertEqual(response.data["doctor"], self.doctor.id)
 
 
 class TestAccessRequest(TestsSetup):
     def setUp(self):
         super().setUp()
-        self.other_user = User.objects.create_user(
-            email="otheruser@mail.com",
-            password="12345678"
-        )
-        self.other_appointment = Request.objects.create(
+        self.other_user = User.objects.create_user(email="otheruser@mail.com", password="12345678")
+        request = Request.objects.create(
             patient=self.other_user,
             symptoms=["headache", "stomachache"],
             comment="I have a headache and stomachache",
         )
 
+        self.other_appointment = Appointment.objects.create(
+            patient=request.patient,
+            doctor=self.doctor,
+            symptoms=request.symptoms,
+            comment=request.comment,
+            date=datetime(2020, 12, 12, 13, 40, tzinfo=pytz.UTC),
+            duration=timedelta(minutes=10),
+        )
+
     def test_patient_can_read_somebody_appointment_false(self):
         self.client.force_authenticate(user=self.patient)
         response = self.client.get(
-            reverse('appointments-detail', kwargs={'pk': self.other_appointment.id}),
-            format='json',
+            reverse("appointments-detail", kwargs={"pk": self.other_appointment.id}),
+            format="json",
         )
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_patient_can_read_self_appointment_true(self):
         self.client.force_authenticate(user=self.other_user)
         response = self.client.get(
-            reverse('appointments-detail', kwargs={'pk': self.other_appointment.id}),
-            format='json',
+            reverse("appointments-detail", kwargs={"pk": self.other_appointment.id}),
+            format="json",
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_doctor_can_read_somebody_appointment_true(self):
         self.client.force_authenticate(user=self.doctor)
         response = self.client.get(
-            reverse('appointments-detail', kwargs={'pk': self.other_appointment.id}),
-            format='json',
+            reverse("appointments-detail", kwargs={"pk": self.other_appointment.id}),
+            format="json",
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-
-

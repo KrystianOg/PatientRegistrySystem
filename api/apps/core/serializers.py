@@ -1,13 +1,16 @@
 from django.db.models import Q
 from rest_framework import serializers
-from .models import Appointment, Request, User
+from api.apps.core.models import Appointment, Request
 
 
 class AppointmentSerializer(serializers.ModelSerializer):
+    # doctor = UserSerializer(read_only=True)
+    # patient = UserSerializer(read_only=True)
+
     class Meta:
         model = Appointment
-        fields = ["pk", "doctor", "patient", "date", "duration", "patient_appeared", "comment"]
-        read_only_fields = ["pk"]
+        fields = ["id", "doctor", "patient", "date", "duration", "patient_appeared", "comment"]
+        read_only_fields = ["id"]
 
     def validate_doctor(self, doctor):
         if doctor.groups.filter(name="Doctor").exists():
@@ -68,24 +71,14 @@ class AppointmentSerializer(serializers.ModelSerializer):
 
 
 class RequestSerializer(serializers.ModelSerializer):
+    # patient = UserSerializer(read_only=True)
+
     class Meta:
         model = Request
-        fields = ["pk", "patient", "symptoms", "comment"]
-        read_only_fields = ["pk"]
+        fields = ["id", "patient", "symptoms", "comment"]
+        read_only_fields = ["id"]
 
     def validate_patient(self, user):
         if user.groups.filter(name="Patient").exists():
             return user
         raise serializers.ValidationError("User is not a patient")
-
-
-class UserSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ["pk", "email", "first_name", "last_name"]
-        read_only_fields = ["pk"]
-
-    def update(self, instance, validated_data):
-        if self.context.get("request").user.pk != instance.pk:
-            raise serializers.ValidationError("Trying to change different account")
-        return super().update(instance, validated_data)

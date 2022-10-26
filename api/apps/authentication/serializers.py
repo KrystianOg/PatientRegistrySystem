@@ -70,7 +70,14 @@ class ChangePasswordSerializer(serializers.Serializer):  # noqa
 
 # TODO: add more serializers for views
 
+
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ["id", "email", "first_name", "last_name", "username"]
+        read_only_fields = ["id"]
+
+    def update(self, instance, validated_data):
+        if self.context.get("request").user.pk != instance.pk:
+            raise serializers.ValidationError("Trying to change different account")
+        return super().update(instance, validated_data)
