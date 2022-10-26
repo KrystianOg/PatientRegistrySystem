@@ -15,7 +15,7 @@ class TestCreateRequests(TestsSetup):
         }
 
     def test_patient_can_create_request_true(self):
-
+        self.assertEqual(Request.objects.count(), 0)
         self.client.force_authenticate(user=self.patient)
         response = self.client.post(
             reverse("requests-list"),
@@ -24,8 +24,10 @@ class TestCreateRequests(TestsSetup):
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.data["patient"], self.patient.id)
+        self.assertEqual(Request.objects.count(), 1)
 
     def test_doctor_can_create_request_true(self):
+        self.assertEqual(Request.objects.count(), 0)
         self.client.force_authenticate(user=self.doctor)
         response = self.client.post(
             reverse("requests-list"),
@@ -34,6 +36,7 @@ class TestCreateRequests(TestsSetup):
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.data["patient"], self.doctor.id)
+        self.assertEqual(Request.objects.count(), 1)
 
 
 class TestAccessRequest(TestsSetup):
