@@ -36,17 +36,16 @@ class SignUpPatientViewSet(CreateModelMixin, GenericViewSet):
         }
 
     def create(self, request, *args, **kwargs):
-        response = super().create(request, args, kwargs)
-        return Response({}, status=response.status_code, headers=response.headers)
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        token = User.objects.get(email=request.data.get("email")).get_token()
+        return Response(token, status=status.HTTP_201_CREATED)
 
 
 class SignUpDoctorViewSet(SignUpPatientViewSet):
     serializer_class = RegisterDoctorSerializer
     permission_classes = [AllowAny]
-
-    def create(self, request, *args, **kwargs):
-        response = super().create(request, args, kwargs)
-        return Response({}, status=response.status_code, headers=response.headers)
 
 
 class ChangePasswordViewSet(UpdateModelMixin, GenericViewSet):

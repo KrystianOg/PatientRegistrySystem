@@ -10,9 +10,12 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):  # noqa
         token = super().get_token(user)
 
         # Add custom claims
+        token["id"] = user.id
+        token["types"] = user.types
         token["email"] = user.email
         token["first_name"] = user.first_name
         token["last_name"] = user.last_name
+        token["username"] = user.username
         # ...
 
         return token
@@ -66,3 +69,8 @@ class ChangePasswordSerializer(serializers.Serializer):  # noqa
 
 
 # TODO: add more serializers for views
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ["id", "email", "first_name", "last_name", "username"]
