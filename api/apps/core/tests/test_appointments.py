@@ -28,7 +28,7 @@ class TestCreateAppointments(TestsSetup):
             self.appointment_data,
             format='json',
         )
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_doctor_can_create_appointment_true(self):
         self.client.force_authenticate(user=self.doctor)

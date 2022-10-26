@@ -1,16 +1,17 @@
 from rest_framework import viewsets, mixins
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, DjangoObjectPermissions
+from rest_framework_extensions.cache.decorators import cache_response
 from .serializers import (
     AppointmentSerializer,
     RequestSerializer,
     UserSerializer,
 )
 from .models import Appointment, Request, User
-from .mixins import ObjectPermissionMixin
+# from .mixins import ObjectPermissionMixin
 
 
-class AppointmentViewSet(ObjectPermissionMixin, viewsets.ModelViewSet):
-    permission_classes = [IsAuthenticated]
+class AppointmentViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated, DjangoObjectPermissions]
     serializer_class = AppointmentSerializer
     queryset = Appointment.objects.all()
 
@@ -29,9 +30,13 @@ class AppointmentViewSet(ObjectPermissionMixin, viewsets.ModelViewSet):
             queryset = Appointment.objects.filter(patient=user)
         return queryset
 
+    @cache_response(timeout=60 * 15)
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
 
-class RequestViewSet(ObjectPermissionMixin, viewsets.ModelViewSet):
-    permission_classes = [IsAuthenticated]
+
+class RequestViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated, DjangoObjectPermissions]
     serializer_class = RequestSerializer
     queryset = Request.objects.all()
 
@@ -47,6 +52,10 @@ class RequestViewSet(ObjectPermissionMixin, viewsets.ModelViewSet):
         else:
             queryset = Request.objects.filter(patient=user)
         return queryset
+
+    @cache_response(timeout=60 * 15)
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
 
 
 class UserViewSet(
