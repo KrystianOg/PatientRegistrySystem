@@ -1,12 +1,11 @@
 from django.db.models import Q
 from rest_framework import serializers
+
+from api.apps.authentication.serializers import UserSerializer
 from api.apps.core.models import Appointment, Request
 
 
 class AppointmentSerializer(serializers.ModelSerializer):
-    # doctor = UserSerializer(read_only=True)
-    # patient = UserSerializer(read_only=True)
-
     class Meta:
         model = Appointment
         fields = ["id", "doctor", "patient", "date", "duration", "patient_appeared", "comment"]
@@ -70,9 +69,17 @@ class AppointmentSerializer(serializers.ModelSerializer):
         return attrs
 
 
-class RequestSerializer(serializers.ModelSerializer):
-    # patient = UserSerializer(read_only=True)
+class GetAppointmentSerializer(serializers.ModelSerializer):
+    doctor = UserSerializer(read_only=True)
+    patient = UserSerializer(read_only=True)
 
+    class Meta:
+        model = Appointment
+        fields = ["id", "doctor", "patient", "date", "duration", "patient_appeared", "comment"]
+        read_only_fields = ["id"]
+
+
+class RequestSerializer(serializers.ModelSerializer):
     class Meta:
         model = Request
         fields = ["id", "patient", "symptoms", "comment"]
@@ -82,3 +89,7 @@ class RequestSerializer(serializers.ModelSerializer):
         if user.groups.filter(name="Patient").exists():
             return user
         raise serializers.ValidationError("User is not a patient")
+
+
+class GetRequestSerializer(RequestSerializer):
+    patient = UserSerializer(read_only=True)

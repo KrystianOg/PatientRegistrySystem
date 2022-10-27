@@ -1,4 +1,9 @@
-from rest_framework.mixins import CreateModelMixin, UpdateModelMixin, RetrieveModelMixin
+from rest_framework.mixins import (
+    CreateModelMixin,
+    UpdateModelMixin,
+    RetrieveModelMixin,
+    DestroyModelMixin,
+)
 from rest_framework.viewsets import GenericViewSet
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
@@ -13,6 +18,7 @@ from api.apps.authentication.serializers import (
     RegisterPatientSerializer,
     ChangePasswordSerializer,
     RegisterDoctorSerializer,
+    DetailedUserSerializer,
 )
 
 from google.oauth2 import id_token
@@ -39,8 +45,13 @@ class SignUpPatientViewSet(CreateModelMixin, GenericViewSet):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
-        token = User.objects.get(email=request.data.get("email")).get_token()
-        return Response(token, status=status.HTTP_201_CREATED)
+        user = User.objects.get(email=request.data.get("email"))
+        token = MyTokenObtainPairSerializer.get_token(user)
+
+        return Response(
+            {"access": str(token.access_token), "refresh": str(token)},
+            status=status.HTTP_201_CREATED,
+        )
 
 
 class SignUpDoctorViewSet(SignUpPatientViewSet):
@@ -77,13 +88,30 @@ class GoogleSignInView(RetrieveModelMixin, GenericViewSet):
             family_name = idinfo["family_name"]
 
             if User.objects.filter(email=email).exists():
-                token = User.objects.get(email=email).get_token()
-                return Response(token, status=status.HTTP_200_OK)
-            else:
-                user = User.objects.create_user(
-                    email=email, first_name=given_name, last_name=family_name
+                user = User.objects.get(email=email)
+                token = MyTokenObtainPairSerializer.get_token(user)
+                return Response(
+                    {"access": str(token.access_token), "refresh": str(token)},
+                    status=status.HTTP_200_OK,
                 )
+            else:
+                user = User.objects.create_user(email=email)
+                user.first_name = given_name
+                user.last_name = family_name
+                user.with_google = True
                 user.save()
-                return Response(user.get_token(), status=status.HTTP_201_CREATED)
+                token = MyTokenObtainPairSerializer.get_token(user)
+                return Response(
+                    {"access": str(token.access_token), "refresh": str(token)},
+                    status=status.HTTP_201_CREATED,
+                )
         except ValueError:
-            return Response({"error": "Invalid Google token"}, status=status.HTTP_403_FORBIDDEN)
+            return Response({"error": "Invalid Google token"}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class UserDetailView(RetrieveModelMixin, UpdateModelMixin, DestroyModelMixin, GenericViewSet):
+    serializer_class = DetailedUserSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return User.objects.filter(id=self.request.user.id)

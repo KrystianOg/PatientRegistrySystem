@@ -1,7 +1,5 @@
-import json
 from django.contrib.auth.base_user import AbstractBaseUser
 from django.contrib.auth.models import PermissionsMixin
-from django.core.serializers.json import DjangoJSONEncoder
 from django.db import models
 from guardian.shortcuts import assign_perm
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -18,13 +16,21 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_staff = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
     # personal information
     email = models.EmailField(max_length=320, unique=True)
     first_name = models.CharField(max_length=63, blank=True, null=True)
     last_name = models.CharField(max_length=63, blank=True, null=True)
-
+    with_google = models.BooleanField(default=False)
+    vacation_mode = models.BooleanField(default=False)
+    prefer_dark_mode = models.BooleanField(default=False)
     USERNAME_FIELD = "email"
 
+    # email notifications
+    # someone_assigns_me_to_appointment = models.BooleanField(default=True)  TODO: future feature
+    doctor_changes_appointment = models.BooleanField(default=True)
+    doctor_deletes_appointment = models.BooleanField(default=True)
+    doctor_accepts_appointment = models.BooleanField(default=True)
     objects = UserManager()
 
     def __str__(self):
@@ -48,8 +54,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     @property
     def types(self):
-        values = self.groups.values_list("name", flat=True)
-        return json.dumps(list(values), cls=DjangoJSONEncoder)
+        return self.groups.values_list("name", flat=True)
 
     @property
     def is_doctor(self):
@@ -70,5 +75,6 @@ def create_auth_token(sender, instance=None, created=False, **kwargs):
 @receiver(post_save, sender=User)
 def assign_permissions(sender, instance, created=False, **kwargs):
     if created:
+        assign_perm("view_user", instance, instance)
         assign_perm("change_user", instance, instance)
         assign_perm("delete_user", instance, instance)

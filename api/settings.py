@@ -28,11 +28,6 @@ SECRET_KEY = "django-insecure-27b&&b)v=*(#+xwzu(vhi(njv-bx0z_+%k+wjc)0&3-n476e9o
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 APPEND_SLASH = True
-ALLOWED_HOSTS = [
-    "localhost",
-    "127.0.0.1",
-    # TODO: add to domain on prod
-]
 
 # User model
 AUTH_USER_MODEL = "authentication.User"
@@ -65,7 +60,7 @@ INSTALLED_APPS = [
 
 # JWT CONFIG
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=5),
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=60),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
     "ROTATE_REFRESH_TOKENS": True,
 }
@@ -78,8 +73,8 @@ GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID")
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
-    "django.contrib.sessions.middleware.SessionMiddleware",
     "corsheaders.middleware.CorsMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -90,6 +85,7 @@ MIDDLEWARE = [
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
 ]
+ALLOWED_HOSTS = ["localhost", "127.0.0.1", "http://localhost:3000"]
 # Further cors config
 CORS_ORIGIN_ALLOW_ALL = False
 CORS_ORIGIN_WHITELIST = [
@@ -130,7 +126,7 @@ DATABASES = {
         "PORT": os.getenv("DATABASE_PORT"),
         "OPTIONS": {"options": "-c search_path=public"},
         "TEST": {
-            "NAME": os.getenv("TEST_DATABASE_NAME", "test-" + os.getenv("DATABASE_NAME")),
+            "NAME": os.getenv("TEST_DATABASE_NAME", "tests-" + os.getenv("DATABASE_NAME")),
         },
     }
 }

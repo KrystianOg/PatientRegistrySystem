@@ -1,9 +1,12 @@
 from rest_framework import viewsets, mixins
 from rest_framework.permissions import IsAuthenticated, DjangoObjectPermissions
-from rest_framework_extensions.cache.decorators import cache_response
+from rest_framework.response import Response
+
 from .serializers import (
     AppointmentSerializer,
     RequestSerializer,
+    GetRequestSerializer,
+    GetAppointmentSerializer,
 )
 from .models import Appointment, Request, User
 from ..authentication.serializers import UserSerializer
@@ -32,9 +35,22 @@ class AppointmentViewSet(viewsets.ModelViewSet):
             queryset = Appointment.objects.filter(patient=user)
         return queryset
 
-    @cache_response(timeout=60 * 15)
+    def create(self, request, *args, **kwargs):
+        request.data["doctor"] = request.user.pk
+        instance = super().create(request, *args, **kwargs)
+        req = request.data.get("request")
+        Request.objects.get(pk=req).delete()
+        return instance
+
     def list(self, request, *args, **kwargs):
-        return super().list(request, *args, **kwargs)
+        queryset = self.filter_queryset(self.get_queryset())
+        serializer = GetAppointmentSerializer(queryset, many=True)
+        return Response(serializer.data)
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = GetAppointmentSerializer(instance)
+        return Response(serializer.data)
 
 
 class RequestViewSet(viewsets.ModelViewSet):
@@ -55,9 +71,15 @@ class RequestViewSet(viewsets.ModelViewSet):
             queryset = Request.objects.filter(patient=user)
         return queryset
 
-    @cache_response(timeout=60 * 15)
     def list(self, request, *args, **kwargs):
-        return super().list(request, *args, **kwargs)
+        queryset = self.filter_queryset(self.get_queryset())
+        serializer = GetRequestSerializer(queryset, many=True)
+        return Response(serializer.data)
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = GetRequestSerializer(instance)
+        return Response(serializer.data)
 
 
 class UserViewSet(

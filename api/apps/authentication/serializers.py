@@ -10,12 +10,7 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):  # noqa
         token = super().get_token(user)
 
         # Add custom claims
-        token["id"] = user.id
-        token["types"] = user.types
         token["email"] = user.email
-        token["first_name"] = user.first_name
-        token["last_name"] = user.last_name
-        token["username"] = user.username
         # ...
 
         return token
@@ -75,9 +70,23 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ["id", "email", "first_name", "last_name", "username"]
-        read_only_fields = ["id"]
+        read_only_fields = ["id", "email"]
 
     def update(self, instance, validated_data):
         if self.context.get("request").user.pk != instance.pk:
             raise serializers.ValidationError("Trying to change different account")
         return super().update(instance, validated_data)
+
+
+class DetailedUserSerializer(UserSerializer):
+    class Meta(UserSerializer.Meta):
+        fields = UserSerializer.Meta.fields + [
+            "types",
+            "with_google",
+            "vacation_mode",
+            "prefer_dark_mode",
+            "doctor_changes_appointment",
+            "doctor_changes_appointment",
+            "doctor_accepts_appointment",
+        ]
+        read_only_fields = UserSerializer.Meta.read_only_fields + ["with_google", "types"]

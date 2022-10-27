@@ -7,8 +7,8 @@ from .views import (
     GoogleSignInView,
     SignUpDoctorViewSet,
     SignUpPatientViewSet,
+    UserDetailView,
 )
-
 
 auth_urlpatterns = [
     path("token/", MyTokenObtainPairView.as_view(), name="token_obtain_pair"),  # to sign in
@@ -23,6 +23,13 @@ auth_urlpatterns = [
         name="update_password",
     ),
     path("google/signin/", GoogleSignInView.as_view({"get": "retrieve"}), name="google_signin"),
+    path(
+        "user/<int:pk>/",
+        UserDetailView.as_view(
+            {"get": "retrieve", "patch": "partial_update", "put": "update", "delete": "destroy"}
+        ),
+        name="user_detail",
+    ),
 ]
 
 urlpatterns = [

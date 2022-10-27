@@ -82,7 +82,6 @@ def create_requests_permissions(sender, instance=None, created=False, **kwargs):
         doctors_group = Group.objects.get(name="Doctor")
         # doctor
         assign_perm("view_request", doctors_group, instance)
-        assign_perm("change_request", doctors_group, instance)
         assign_perm("delete_request", doctors_group, instance)
 
 
