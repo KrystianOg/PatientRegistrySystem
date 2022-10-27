@@ -107,3 +107,30 @@ class TestAccessRequest(TestsSetup):
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
         self.assertEqual(Request.objects.get(pk=self.other_request.pk).symptoms, ["headache", "stomachache"])
 
+
+    def test_patient_can_delete_somebody_request_false(self):
+        self.client.force_authenticate(user=self.patient)
+        response = self.client.delete(
+            reverse("requests-detail", kwargs={"pk": self.other_request.id}),
+        )
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(Request.objects.count(), 1)
+
+
+    def test_patient_can_delete_self_request_true(self):
+        self.client.force_authenticate(user=self.other_user)
+        response = self.client.delete(
+            reverse("requests-detail", kwargs={"pk": self.other_request.id}),
+        )
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(Request.objects.count(), 0)
+
+
+    def test_doctor_can_delete_somebody_request_true(self):
+        self.client.force_authenticate(user=self.doctor)
+        response = self.client.delete(
+            reverse("requests-detail", kwargs={"pk": self.other_request.id}),
+        )
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(Request.objects.count(), 0)
+
