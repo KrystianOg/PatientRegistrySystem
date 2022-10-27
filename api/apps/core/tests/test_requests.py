@@ -48,6 +48,10 @@ class TestAccessRequest(TestsSetup):
             symptoms=["headache", "stomachache"],
             comment="I have a headache and stomachache",
         )
+        self.updated_request_data = {
+            "symptoms": ["headache", "stomachache", "fever"],
+            "comment": "I have a headache and stomachache and fever",
+        }
 
     def test_patient_can_read_somebody_request_false(self):
         self.client.force_authenticate(user=self.patient)
@@ -72,3 +76,34 @@ class TestAccessRequest(TestsSetup):
             format="json",
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_patient_can_update_somebody_request_false(self):
+        self.client.force_authenticate(user=self.patient)
+        response = self.client.patch(
+            reverse("requests-detail", kwargs={"pk": self.other_request.id}),
+            self.updated_request_data, format="json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(Request.objects.get(pk=self.other_request.pk).symptoms, ["headache", "stomachache"])
+
+
+    def test_patient_can_update_self_request_true(self):
+        self.client.force_authenticate(user=self.other_user)
+        response = self.client.patch(
+            reverse("requests-detail", kwargs={"pk": self.other_request.id}),
+            self.updated_request_data, format="json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["symptoms"], ["headache", "stomachache", "fever"])
+        self.assertEqual(Request.objects.get(pk=self.other_request.pk).symptoms, ["headache", "stomachache", "fever"])
+
+
+    def test_doctor_can_update_somebody_request_false(self):
+        self.client.force_authenticate(user=self.doctor)
+        response = self.client.patch(
+            reverse("requests-detail", kwargs={"pk": self.other_request.id}),
+            self.updated_request_data, format="json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(Request.objects.get(pk=self.other_request.pk).symptoms, ["headache", "stomachache"])
+
