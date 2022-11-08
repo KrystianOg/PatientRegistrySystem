@@ -36,7 +36,7 @@ class TestsSetup(APITestCase):
                 "view_request",
             ]
         )
-        group.permissions.set(permissions)
+        group.permissions.add(*permissions)
 
     def create_doctor_group(self):
         group = Group.objects.create(name="Doctor")

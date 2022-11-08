@@ -1,0 +1,565 @@
+openapi: 3.0.3
+info:
+  title: Patient Registry System
+  description: |-
+    This is a sample Pet Store Server based on the OpenAPI 3.0 specification.  You can find out more about
+    Swagger at [https://swagger.io](https://swagger.io). In the third iteration of the pet store, we've switched to the design first approach!
+    You can now help us improve the API whether it's by making changes to the definition itself or to the code.
+    That way, with time, we can improve the API in general, and expose some of the new features in OAS3.
+    
+    This is a simple (yet it brings up some more advanced topics) Patient Registry System API.\
+    Included packages:
+    - [Rest Framework Simple JWT](https://django-rest-framework-simplejwt.readthedocs.io/en/latest/)
+    - [Google API Python Client](https://github.com/googleapis/google-api-python-client)
+    - [Django Guardian](https://django-guardian.readthedocs.io/en/stable/)
+
+    Github repos:
+    - [React Frontend](https://github.com/KrystianOg/patient-registry-system)
+    - [Django Backend](https://github.com/KrystianOg/PatientRegistrySystem)
+    - [The source API definition](https://github.com/swagger-api/swagger-petstore/blob/master/src/main/resources/openapi.yaml)
+  termsOfService: https://patientregistrysystem.college/terms-of-service
+  contact:
+    email: contact@patientregistrysystem.college
+  license:
+    name: MIT license
+    url: https://mit-license.org/
+  version: 0.1.0
+externalDocs:
+  description: The app
+  url: https://patientregistrysystem.college
+servers:
+  - url: https://api.patientregistrysystem.college
+tags:
+  - name: auth
+    description: Authentication actions
+  - name: user
+    description: Operations about user
+  - name: appointment
+    description: Operations about appointment
+  - name: request
+    description: Operations about appointment request
+paths:
+  /auth/signup/:
+    post:
+      tags:
+        - auth
+      summary: Sign up new patient
+      operationId: signupPatient
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SignupCredentials'
+      responses:
+        '201':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Token'
+        '400':
+          description: Passwords do not match
+  /auth/signup/doctor/:
+    post:
+      tags:
+        - auth
+      summary: Sign up new doctor
+      operationId: signupDoctor
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SignupCredentials'
+      responses:
+        '201':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Token'
+        '400':
+          description: Passwords do not match
+  /auth/token/:
+    post:
+      tags:
+        - auth
+      summary: Obtain token
+      description: Obtain token (sign in operation)
+      operationId: obtainToken
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SigninCredentials'
+      responses:
+        '200':
+          description: Successful operation
+        '401':
+          description: No account found with given credentials
+  /auth/token/refresh/:
+    post:
+      tags:
+        - auth
+      summary: Refresh token
+      description: Refresh token
+      operationId: refreshToken
+      security:
+        - bearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                refresh:
+                  type: string
+                  example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Token'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /auth/change-password/:
+    patch:
+      tags:
+        - auth
+      summary: Change password
+      description: |
+        **Required role (OneOf)**
+        - Owner
+      operationId: changePassword
+      security:
+        - bearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                old_password:
+                  type: string
+                  example: "ExamplePassword123"
+                new_password:
+                  type: string
+                  example: "NewPassword123"
+      responses:
+        '200':
+          description: Successful operation
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /appointments/:
+    get:
+      tags:
+        - appointment
+      summary: Get all appointments
+      description: |
+        **Required role (OneOf)**
+        - Owner
+        - Doctor
+      operationId: listAppointments
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Appointment'
+        '401':
+          description: Unauthorized
+    post:
+      tags:
+        - appointment
+      summary: Create appointment from given request
+      description: |
+        **Required role (OneOf)**
+        - Doctor
+      operationId: createAppointment
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Appointment'
+      responses:
+        '201':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Appointment'
+        '400':
+          description: Invalid request
+        '403':
+          description: Unauthorized
+  /appointments/{id}:
+    get:
+      tags:
+        - appointment
+      summary: Get appointment by id
+      description: |
+        **Required role (OneOf)**
+        - Patient (client)
+        - Doctor
+      operationId: getAppointmentById
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: ID of appointment to return
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Appointment'
+        '400':
+          description: Appointment not found
+        '401':
+          description: Unauthorized
+    put:
+      tags:
+        - appointment
+      summary: Update appointment
+      description: |
+        **Required role (OneOf)**
+        - Doctor
+      operationId: partialUpdateAppointment
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: ID of appointment to update
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Appointment'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Appointment'
+        '400':
+          description: Invalid request
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          description: Forbidden
+    delete:
+      tags:
+        - appointment
+      summary: Delete appointment
+      description: |
+        **Required role (OneOf)**
+        - Doctor
+      operationId: deleteAppointment
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: ID of appointment to delete
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '204':
+          description: Successful operation
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /requests/:
+    get:
+      tags:
+        - request
+      summary: Get all requests
+      description: |
+        **Required role (OneOf)**
+        - Doctor
+      operationId: listRequests
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Request'
+        '401':
+          description: Unauthorized
+    post:
+      tags:
+        - request
+      summary: Create request from given request
+      description: |
+        **Required role (OneOf)**
+        - Patient
+        - Doctor
+      operationId: createRequest
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                symptoms:
+                  type: array
+                  items:
+                    type: string
+                  example: ["Cough", "Fever"]
+                comment:
+                  type: string
+                  example: "I have a fever"
+      responses:
+        '201':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Request'
+        '400':
+          description: Invalid request
+        '403':
+          description: Unauthorized
+  /requests/{id}:
+    get:
+      tags:
+        - request
+      summary: Get request by id
+      operationId: getRequestById
+      description: |
+        **Required role (OneOf)**
+        - Owner
+        - Doctor
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: ID of request to return
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Request'
+        '400':
+          description: Request not found
+        '401':
+          description: Unauthorized
+    put:
+      tags:
+        - request
+      summary: Update request
+      description: |
+        **Required role (OneOf)**
+        - Owner
+        - Doctor
+      operationId: partialUpdateRequest
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: ID of request to update
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Request'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Request'
+        '400':
+          description: Invalid request
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          description: Forbidden
+    delete:
+      tags:
+        - request
+      summary: Delete request
+      description: |
+        **Required role (OneOf)**
+        - Owner
+        - Doctor
+      operationId: deleteRequest
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: ID of request to delete
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '204':
+          description: Successful operation
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+components:
+  schemas:
+    SignupCredentials:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          example: doctorjohn@mail.com
+        password:
+          type: string
+          format: password
+          example: ExamplePassword123
+        password2:
+          type: string
+          format: password
+          example: ExamplePassword123
+      required:
+        - email
+        - password
+        - password2
+    SigninCredentials:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          example: doctorjohn@mail.com
+        password:
+          type: string
+          format: password
+          example: ExamplePassword123
+      required:
+        - email
+        - password
+    Token:
+      type: object
+      properties:
+        access:
+          type: string
+          format: jwt
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVC...
+        refresh:
+          type: string
+          format: jwt
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXdV...
+    Appointment:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 3
+        doctor:
+          type: integer
+          format: int64
+          example: 5
+        patient:
+          type: integer
+          format: int64
+          example: 6
+        date:
+          type: string
+          format: date
+          example: "2022-11-11"
+        duration:
+          type: string
+          format: time
+          example: 65
+        symptoms:
+          type: array
+          items:
+            type: string
+          example: ["headache", "fever"]
+        patient_appeared:
+          type: boolean
+          example: true
+        comment:
+          type: string
+          example: "Patient was in good mood"
+      required:
+        - doctor
+        - patient
+        - date
+        - duration
+    Request:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 5
+        patient:
+          type: integer
+          format: int64
+          example: 15
+        symptoms:
+          type: array
+          items:
+            type: string
+          example: ['headache', 'fever']
+        comment:
+          type: string
+          example: 'I have a headache'
+      required:
+        - patient
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  responses:
+    Unauthorized:
+      description: Access token is missing or invalid
+    NotFound:
+      description: Entity not found
