@@ -2,11 +2,6 @@ openapi: 3.0.3
 info:
   title: Patient Registry System
   description: |-
-    This is a sample Pet Store Server based on the OpenAPI 3.0 specification.  You can find out more about
-    Swagger at [https://swagger.io](https://swagger.io). In the third iteration of the pet store, we've switched to the design first approach!
-    You can now help us improve the API whether it's by making changes to the definition itself or to the code.
-    That way, with time, we can improve the API in general, and expose some of the new features in OAS3.
-    
     This is a simple (yet it brings up some more advanced topics) Patient Registry System API.\
     Included packages:
     - [Rest Framework Simple JWT](https://django-rest-framework-simplejwt.readthedocs.io/en/latest/)
@@ -16,19 +11,19 @@ info:
     Github repos:
     - [React Frontend](https://github.com/KrystianOg/patient-registry-system)
     - [Django Backend](https://github.com/KrystianOg/PatientRegistrySystem)
-    - [The source API definition](https://github.com/swagger-api/swagger-petstore/blob/master/src/main/resources/openapi.yaml)
-  termsOfService: https://patientregistrysystem.college/terms-of-service
+    - [The source API definition](https://krystianog.github.io/PatientRegistrySystem/#/)
+#  termsOfService: https://patientregistrysystem.college/terms-of-service
   contact:
-    email: contact@patientregistrysystem.college
+    email: contact@patient-registry-system.college
   license:
     name: MIT license
     url: https://mit-license.org/
   version: 0.1.0
 externalDocs:
   description: The app
-  url: https://patientregistrysystem.college
+  url: https://patient-registry-system.college
 servers:
-  - url: https://api.patientregistrysystem.college
+  - url: https://api.patient-registry-system.college
 tags:
   - name: auth
     description: Authentication actions
