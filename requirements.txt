@@ -1,4 +1,4 @@
-django==4.1.2
+django==4.1.6
 djangorestframework==3.14.0 # drf toolkit - easy to use rest api framework
 django-cors-headers # adds Cross-Origin-Resourse-Sharing (CORS), allowing in-browser requests from other domains
 # django-extensions
